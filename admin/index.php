@@ -45,102 +45,114 @@ $recent_orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - <?php echo SITE_NAME; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Admin Panel</a>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="../index.php">View Site</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../pages/logout.php">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+<body class="bg-gray-50">
+    <?php include 'includes/admin_header.php'; ?>
 
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-md-2">
-                <div class="list-group">
-                    <a href="index.php" class="list-group-item list-group-item-action active">Dashboard</a>
-                    <a href="products.php" class="list-group-item list-group-item-action">Products</a>
-                    <a href="categories.php" class="list-group-item list-group-item-action">Categories</a>
-                    <a href="orders.php" class="list-group-item list-group-item-action">Orders</a>
-                    <a href="users.php" class="list-group-item list-group-item-action">Users</a>
-                    <a href="reports.php" class="list-group-item list-group-item-action">Reports</a>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex">
+            <div class="w-64 bg-white shadow-md">
+                <div class="p-4">
+                    <nav class="space-y-2">
+                        <a href="index.php" class="flex items-center px-4 py-2 text-gray-700 bg-blue-100 rounded-md">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </a>
+                        <a href="products.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-box mr-3"></i>Products
+                        </a>
+                        <a href="categories.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-tags mr-3"></i>Categories
+                        </a>
+                        <a href="orders.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-shopping-cart mr-3"></i>Orders
+                        </a>
+                        <a href="users.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-users mr-3"></i>Users
+                        </a>
+                        <a href="reports.php" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-chart-bar mr-3"></i>Reports
+                        </a>
+                    </nav>
                 </div>
             </div>
             
-            <div class="col-md-10">
+            <div class="flex-1 p-8">
                 <h2>Dashboard</h2>
                 
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <h5>Total Users</h5>
-                                <h3><?php echo $stats['total_users']; ?></h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Total Users</p>
+                                <p class="text-2xl font-bold text-gray-900"><?php echo $stats['total_users']; ?></p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <h5>Total Products</h5>
-                                <h3><?php echo $stats['total_products']; ?></h3>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-box text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Total Products</p>
+                                <p class="text-2xl font-bold text-gray-900"><?php echo $stats['total_products']; ?></p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body">
-                                <h5>Total Orders</h5>
-                                <h3><?php echo $stats['total_orders']; ?></h3>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-shopping-cart text-yellow-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Total Orders</p>
+                                <p class="text-2xl font-bold text-gray-900"><?php echo $stats['total_orders']; ?></p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body">
-                                <h5>Total Revenue</h5>
-                                <h3>$<?php echo number_format($stats['total_revenue'] ?: 0, 2); ?></h3>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-rupee-sign text-purple-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Total Revenue</p>
+                                <p class="text-2xl font-bold text-gray-900"><?php echo formatPrice($stats['total_revenue'] ?: 0); ?></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Recent Orders</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4">Recent Orders</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-gray-200">
                                 <?php foreach ($recent_orders as $order): ?>
                                     <tr>
-                                        <td>#<?php echo $order['id']; ?></td>
-                                        <td><?php echo $order['full_name']; ?></td>
-                                        <td><?php echo formatPrice($order['total']); ?></td>
-                                        <td>
-                                            <span class="badge bg-<?php echo $order['status'] == 'completed' ? 'success' : 'warning'; ?>">
+                                        <td class="px-6 py-4 font-medium text-gray-900">#<?php echo $order['id']; ?></td>
+                                        <td class="px-6 py-4 text-gray-900"><?php echo $order['full_name']; ?></td>
+                                        <td class="px-6 py-4 font-medium text-blue-600"><?php echo formatPrice($order['total']); ?></td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs rounded-full <?php echo $order['status'] == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'; ?>">
                                                 <?php echo ucfirst($order['status']); ?>
                                             </span>
                                         </td>
-                                        <td><?php echo date('Y-m-d', strtotime($order['created_at'])); ?></td>
+                                        <td class="px-6 py-4 text-gray-900"><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -151,6 +163,6 @@ $recent_orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

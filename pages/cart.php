@@ -138,8 +138,17 @@ $total = $cart->getCartTotal($_SESSION['user_id']);
                             </div>
                         </div>
                         
-                        <a href="checkout.php" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition font-medium text-center block">
-                            <i class="fas fa-lock mr-2"></i>Secure Checkout
+                        <div class="mb-4">
+                            <input type="text" id="couponCode" placeholder="Enter coupon code" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                            <button onclick="applyCoupon()" class="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition">
+                                <i class="fas fa-tag mr-2"></i>Apply Coupon
+                            </button>
+                            <div id="couponMessage" class="mt-2 text-sm"></div>
+                        </div>
+                        
+                        <a href="payment.php" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition font-medium text-center block">
+                            <i class="fas fa-lock mr-2"></i>Proceed to Payment
                         </a>
                         
                         <div class="mt-4 text-center">
@@ -161,15 +170,91 @@ $total = $cart->getCartTotal($_SESSION['user_id']);
         function increaseQuantity(productId) {
             const input = document.querySelector(`input[data-product-id="${productId}"]`);
             input.value = parseInt(input.value) + 1;
-            input.dispatchEvent(new Event('change'));
+            updateCartItem(productId, input.value);
         }
         
         function decreaseQuantity(productId) {
             const input = document.querySelector(`input[data-product-id="${productId}"]`);
             if (parseInt(input.value) > 1) {
                 input.value = parseInt(input.value) - 1;
-                input.dispatchEvent(new Event('change'));
+                updateCartItem(productId, input.value);
             }
+        }
+        
+        function updateCartItem(productId, quantity) {
+            fetch('update_cart.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({product_id: productId, quantity: quantity})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+        
+        // Handle quantity input changes
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const productId = this.dataset.productId;
+                const quantity = parseInt(this.value);
+                if (quantity > 0) {
+                    updateCartItem(productId, quantity);
+                } else {
+                    this.value = 1;
+                }
+            });
+        });
+        
+        // Handle remove item
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function() {
+                if (confirm('Remove this item from cart?')) {
+                    const productId = this.dataset.productId;
+                    fetch('update_cart.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({product_id: productId, quantity: 0})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    });
+                }
+            });
+        });
+        
+        function applyCoupon() {
+            const couponCode = document.getElementById('couponCode').value;
+            const messageDiv = document.getElementById('couponMessage');
+            
+            if (!couponCode) {
+                messageDiv.innerHTML = '<span class="text-red-600">Please enter a coupon code</span>';
+                return;
+            }
+            
+            fetch('apply_coupon.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({coupon_code: couponCode})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.innerHTML = `<span class="text-green-600">${data.message}</span><br><span class="text-sm">Discount: ${data.discount} | New Total: ${data.new_total}</span>`;
+                } else {
+                    messageDiv.innerHTML = `<span class="text-red-600">${data.error}</span>`;
+                }
+            })
+            .catch(() => {
+                messageDiv.innerHTML = '<span class="text-red-600">Error applying coupon</span>';
+            });
         }
     </script>
 </body>

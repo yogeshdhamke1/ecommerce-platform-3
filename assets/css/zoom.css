@@ -1,0 +1,91 @@
+/* Product Image Zoom Styles */
+.zoom-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.zoom-lens {
+    position: absolute;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(1px);
+    cursor: none;
+    pointer-events: none;
+}
+
+.zoom-result {
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(1px);
+}
+
+.cursor-zoom-in {
+    cursor: zoom-in;
+}
+
+.cursor-zoom-out {
+    cursor: zoom-out;
+}
+
+/* Fullscreen modal animations */
+.modal-enter {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-exit {
+    animation: modalFadeOut 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .zoom-result {
+        width: 80px !important;
+        height: 80px !important;
+    }
+    
+    .zoom-container {
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+}
+
+/* Zoom controls styling */
+.zoom-controls {
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.zoom-controls button {
+    transition: all 0.2s ease;
+}
+
+.zoom-controls button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255,255,255,0.2);
+}

@@ -1,9 +1,9 @@
 # E-Commerce Platform 🛒
 
-A complete PHP-based e-commerce platform with multi-currency support, modern UI/UX design, and comprehensive business management features.
+A comprehensive PHP-based e-commerce platform with advanced features including social media integration, intelligent product recommendations, shipping rate calculation, and modern UI/UX design.
 
 ## 🚀 Live Demo
-- **Homepage**: Browse products with INR pricing
+- **Homepage**: Browse products with multi-currency support
 - **Admin Panel**: `/admin/index.php`
 - **Customer Dashboard**: Login required
 
@@ -12,72 +12,115 @@ A complete PHP-based e-commerce platform with multi-currency support, modern UI/
 ### Admin Account
 - **Email**: `admin@test.com`
 - **Password**: `password`
-- **Access**: Full admin panel
+- **Access**: Full admin panel with shipping management
 
 ### Customer Accounts
 - **Email**: `test@test.com` | **Password**: `password`
 - **Email**: `customer@test.com` | **Password**: `password`
 
-## ✨ Features
+## ✨ Advanced Features
 
 ### 🛍️ E-Commerce Core
-- **25 Products** across 5 categories (Jewelry, Electronics, Fashion, Home & Garden, Sports)
-- **Advanced Search & Filtering** with real-time results
+- **25+ Products** across 5 categories (Jewelry, Electronics, Fashion, Home & Garden, Sports)
+- **Advanced Search & Filtering** with real-time autocomplete
+- **Smart Product Recommendations** based on user behavior
 - **Shopping Cart** with quantity controls and AJAX updates
-- **Secure Checkout** with order tracking
-- **Order Management** with status updates
+- **Secure Checkout** with multiple shipping options
+- **Order Management** with tracking and invoices
+
+### 🔍 Advanced Search System
+- **Real-time Autocomplete** with product suggestions
+- **Multi-criteria Filtering** (price range, rating, category, stock)
+- **Sorting Options** (price, rating, popularity, name, newest)
+- **Mobile-responsive** search interface
+- **Search Analytics** and history tracking
+
+### 📦 Shipping & Logistics
+- **Real-time Rate Calculation** based on location and weight
+- **Multiple Shipping Methods** (Standard, Express, Same Day)
+- **Zone-based Pricing** (Metro, Tier 2, Remote areas)
+- **Carrier Integration** (India Post, BlueDart, Dunzo)
+- **Delivery Time Estimation** with date ranges
+- **Pincode Validation** for Indian addresses
+- **Admin Shipping Management** panel
+
+### 🔗 Social Media Integration
+- **Social Login** (Google OAuth, Facebook Login)
+- **Product Sharing** across 6 platforms (Facebook, Twitter, WhatsApp, LinkedIn, Pinterest, Telegram)
+- **Copy-to-clipboard** functionality
+- **Social Share Tracking** for analytics
+- **Viral Marketing** features
+
+### 🖼️ Product Image Zoom
+- **Desktop Magnifier Lens** with real-time tracking
+- **Mobile Pinch-to-zoom** and double-tap support
+- **Fullscreen Modal** with zoom controls
+- **Touch-friendly** interface for all devices
+- **Smooth Animations** and transitions
+
+### 🤖 Smart Recommendations
+- **AI-powered Suggestions** based on purchase history
+- **Category Preference Learning** for personalized experience
+- **Popular Products** fallback for new users
+- **Related Products** display on product pages
+- **Cross-selling** opportunities
 
 ### 💱 Multi-Currency Support
 - **Default**: Indian Rupee (INR ₹)
 - **Supported**: USD, EUR, GBP, JPY
-- **Real-time Conversion** with persistent selection
+- **Real-time Conversion** with exchange rates
+- **Persistent Selection** across sessions
 - **Professional Formatting** with proper symbols
 
 ### 👥 Customer Management
-- **User Authentication** (Login/Register/Password Reset)
-- **Customer Dashboard** with statistics
+- **User Authentication** with social login options
+- **Customer Dashboard** with personalized statistics
 - **Profile Management** with editable information
 - **Order History** with detailed tracking
 - **Wishlist** and **Reviews** system
-
-### 📄 Invoice System
-- **PDF Generation** with multi-currency support
-- **Professional Layout** with order details
-- **Download/Email** functionality
+- **Invoice Generation** (PDF download)
 
 ### 🔧 Admin Panel
-- **Dashboard** with sales statistics
+- **Comprehensive Dashboard** with analytics
 - **Product Management** (CRUD operations)
-- **Order Management** with status updates
-- **User Management** and analytics
+- **Shipping Configuration** (methods, zones, rates)
+- **Order Management** with shipping details
+- **User Management** and social login tracking
+- **Coupon Management** system
+- **Sales Reports** and analytics
 
 ## 🛠️ Technology Stack
 
 - **Backend**: PHP 7.4+, MySQL 8.0+
-- **Frontend**: Tailwind CSS 3.0, Font Awesome 6.5.1
-- **Database**: MySQL with PDO
-- **Dependencies**: Composer (DomPDF)
+- **Frontend**: Tailwind CSS 3.0, Font Awesome 6.5.1, JavaScript ES6+
+- **Database**: MySQL with PDO and prepared statements
+- **APIs**: Google OAuth 2.0, Facebook Graph API
+- **PDF Generation**: Custom TCPDF implementation
+- **Security**: Password hashing, XSS protection, SQL injection prevention
 
 ## 📦 Installation
 
 ### Prerequisites
-- PHP 7.4+ with MySQL extension
+- PHP 7.4+ with MySQL, cURL extensions
 - MySQL 8.0+
-- Composer
 - Web server (Apache/Nginx)
+- Google & Facebook developer accounts (for social login)
 
 ### Quick Setup
 
 1. **Clone Repository**
 ```bash
-git clone https://github.com/yogeshdhamke1/ecommerce-platform-3.git
-cd ecommerce-platform-3
+git clone <repository-url>
+cd E-Commerce-Platform
 ```
 
 2. **Database Setup**
 ```sql
 CREATE DATABASE `ecommerce-store_db`;
 mysql -u root -p ecommerce-store_db < database.sql
+mysql -u root -p ecommerce-store_db < additional-features.sql
+mysql -u root -p ecommerce-store_db < shipping-final.sql
+mysql -u root -p ecommerce-store_db < social-media.sql
 ```
 
 3. **Configure Database**
@@ -89,84 +132,118 @@ private $username = 'root';
 private $password = '';
 ```
 
-4. **Install Dependencies**
-```bash
-composer install
+4. **Configure Social Login**
+```php
+// Edit config/social_config.php
+define('GOOGLE_CLIENT_ID', 'your-google-client-id');
+define('FACEBOOK_APP_ID', 'your-facebook-app-id');
 ```
 
 5. **Access Application**
-- Homepage: `http://localhost/ecommerce-platform-3/`
-- Admin: `http://localhost/ecommerce-platform-3/admin/`
+- Homepage: `http://localhost/E-Commerce-Platform/`
+- Admin: `http://localhost/E-Commerce-Platform/admin/`
 
 ## 🎨 UI/UX Features
 
 - **Modern Design** with Tailwind CSS
 - **Responsive Layout** for all devices
-- **Interactive Elements** with hover effects
-- **Loading States** and notifications
-- **Mobile-First** approach
+- **Interactive Elements** with hover effects and animations
+- **Loading States** and real-time notifications
+- **Mobile-First** approach with touch optimization
+- **Professional Checkout** flow with progress indicators
 
 ## 🔒 Security Features
 
 - **Password Hashing** with PHP password_hash()
 - **SQL Injection Prevention** with prepared statements
 - **XSS Protection** with input sanitization
+- **CSRF Protection** for forms
 - **Session Security** management
+- **OAuth Security** for social logins
 
 ## 📱 Mobile Optimization
 
-- **Touch-Friendly** interface
-- **Responsive Grid** system
-- **Optimized Images** with fallbacks
-- **Fast Loading** performance
+- **Touch-Friendly** interface with gesture support
+- **Responsive Grid** system with breakpoints
+- **Optimized Images** with lazy loading
+- **Fast Loading** performance optimization
+- **Mobile Search** with autocomplete
+- **Touch Zoom** for product images
 
-## 🔍 SEO Friendly
+## 🔍 SEO & Analytics
 
-- **Meta Tags** optimization
+- **Meta Tags** optimization for products
 - **Semantic HTML5** structure
-- **Clean URLs** and navigation
+- **Clean URLs** and breadcrumb navigation
 - **Image Alt Tags** for accessibility
+- **Search Analytics** tracking
+- **Social Share** metrics
 
 ## 📊 Sample Data
 
 ### Products (INR Pricing)
-- Diamond Ring: ₹1,08,000
-- Smartphone: ₹66,500
-- Laptop: ₹1,08,000
-- Designer Dress: ₹16,600
+- Premium Diamond Ring: ₹25,000
+- Wireless Headphones: ₹8,999
+- Gaming Laptop: ₹89,999
+- Designer T-Shirt: ₹1,299
+- Smart Security Camera: ₹4,999
 
-### Categories
-- Jewelry, Electronics, Fashion, Home & Garden, Sports
+### Shipping Methods
+- Standard Delivery: ₹50 base + ₹2/kg (5-7 days)
+- Express Delivery: ₹75 base + ₹3/kg (2-3 days)
+- Same Day Delivery: ₹150 base + ₹5/kg (Metro only)
 
 ## 🗂️ Project Structure
 
 ```
-ecommerce-platform-3/
-├── config/              # Database and app configuration
-├── classes/             # PHP business logic
-├── pages/               # Customer pages
-├── admin/               # Admin panel
-├── assets/              # CSS, JS, images
-├── includes/            # Reusable components
-├── documentation/       # Project docs
-├── database.sql         # Database schema
-└── update-database-query.sql # Update queries
+E-Commerce-Platform/
+├── config/              # Database and social media configuration
+├── classes/             # Business logic (Product, User, Cart, Shipping, etc.)
+├── pages/               # Customer pages with advanced features
+├── admin/               # Admin panel with shipping management
+├── assets/              # CSS, JS, images, and zoom functionality
+├── includes/            # Reusable components and widgets
+├── documentation/       # Project documentation
+├── database.sql         # Core database schema
+├── shipping-final.sql   # Shipping system tables
+├── social-media.sql     # Social integration tables
+└── additional-features.sql # Extended features
 ```
 
-## 🧪 Testing
+## 🧪 Testing Features
 
-1. **User Registration**: Create account or use test credentials
-2. **Shopping Flow**: Browse → Add to Cart → Checkout
-3. **Currency Switch**: Test INR, USD, EUR, GBP, JPY
-4. **Admin Panel**: Manage products and orders
-5. **Mobile Testing**: Responsive design verification
+1. **Advanced Search**: Test autocomplete and filtering
+2. **Social Login**: Try Google/Facebook authentication
+3. **Shipping Calculator**: Enter different pincodes
+4. **Product Zoom**: Test on desktop and mobile
+5. **Social Sharing**: Share products on social media
+6. **Recommendations**: Browse products to see suggestions
+7. **Admin Shipping**: Configure methods and rates
+8. **Multi-currency**: Switch between currencies
 
-## 📚 Documentation
+## 📚 Key Components
 
-- **[Project Structure](documentation/project-structure.md)** - Complete file organization
-- **[Features](documentation/features.md)** - Detailed feature breakdown
-- **[Installation](documentation/installation.md)** - Setup guide
-- **[API Endpoints](documentation/api-endpoints.md)** - AJAX documentation
+### Search System
+- `classes/Product.php` - Advanced search logic
+- `pages/search.php` - Dedicated search page
+- `pages/search_api.php` - Autocomplete API
+- `includes/search_widget.php` - Reusable component
+
+### Shipping System
+- `classes/Shipping.php` - Rate calculation engine
+- `pages/shipping_calculator.php` - API endpoint
+- `admin/shipping.php` - Admin management
+- `includes/shipping_widget.php` - Calculator widget
+
+### Social Integration
+- `config/social_config.php` - OAuth configuration
+- `pages/social_login.php` - Authentication handler
+- `includes/social_buttons.php` - Login and share buttons
+
+### Image Zoom
+- `assets/css/zoom.css` - Zoom styling
+- `assets/js/mobile-zoom.js` - Touch support
+- `includes/image_zoom.php` - Reusable component
 
 ## 🤝 Contributing
 
@@ -180,19 +257,15 @@ ecommerce-platform-3/
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 👨‍💻 Developer
-
-**Yogesh Dhamke**
-- GitHub: [@yogeshdhamke1](https://github.com/yogeshdhamke1)
-- Repository: [ecommerce-platform-3](https://github.com/yogeshdhamke1/ecommerce-platform-3)
-
 ## 🆘 Support
 
 For support and questions:
 - Check [Documentation](documentation/)
-- Review [Installation Guide](documentation/installation.md)
-- Open an [Issue](https://github.com/yogeshdhamke1/ecommerce-platform-3/issues)
+- Review feature-specific SQL files
+- Open an Issue for bugs or feature requests
 
 ---
 
 ⭐ **Star this repository if you find it helpful!**
+
+**Built with ❤️ using PHP, MySQL, and modern web technologies**

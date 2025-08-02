@@ -131,6 +131,10 @@ $total_spent = array_sum(array_column($user_orders, 'total'));
                             <i class="fas fa-heart text-purple-600 mr-3"></i>
                             <span>Wishlist</span>
                         </a>
+                        <a href="recommendations.php" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-magic text-purple-600 mr-3"></i>
+                            <span>Recommendations</span>
+                        </a>
                         <a href="reviews.php" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
                             <i class="fas fa-star text-yellow-600 mr-3"></i>
                             <span>My Reviews</span>

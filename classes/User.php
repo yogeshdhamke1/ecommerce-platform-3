@@ -50,5 +50,18 @@ class User {
         $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
         return $stmt->execute([$password_hash, $email]);
     }
+    
+    public function getUserByEmail($email) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function registerSocial($data) {
+        $query = "INSERT INTO " . $this->table_name . " (username, email, password, full_name, social_provider, social_id) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$data['username'], $data['email'], $data['password'], $data['full_name'], $data['social_provider'], $data['social_id']]);
+    }
 }
 ?>

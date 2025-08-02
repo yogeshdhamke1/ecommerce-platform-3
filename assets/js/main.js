@@ -126,6 +126,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Add to wishlist functionality
+    const addToWishlistButtons = document.querySelectorAll('.add-to-wishlist');
+    addToWishlistButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            
+            showLoading(this);
+            
+            fetch('pages/add_wishlist.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({product_id: productId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Added to wishlist!', 'success');
+                } else {
+                    showNotification(data.message || 'Error adding to wishlist', 'error');
+                }
+            })
+            .finally(() => {
+                hideLoading(this);
+            });
+        });
+    });
+    
     // Search functionality
     initSearch();
 });

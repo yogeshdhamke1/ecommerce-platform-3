@@ -5,6 +5,17 @@
 ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(64) NULL;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_expires DATETIME NULL;
 
+-- Create wishlist table if not exists
+CREATE TABLE IF NOT EXISTS wishlist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    product_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_wishlist (user_id, product_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
 -- Clear existing users
 DELETE FROM users;
 
@@ -63,5 +74,6 @@ ALTER TABLE reviews AUTO_INCREMENT = 1;
 -- Verify updates
 SELECT 'Users Updated:' as Status, COUNT(*) as Count FROM users;
 SELECT 'Products with INR Pricing:' as Status, COUNT(*) as Count FROM products WHERE price > 1000;
+SELECT 'Wishlist Table Ready:' as Status, 'YES' as Count FROM information_schema.tables WHERE table_name = 'wishlist';
 SELECT 'Sample Product Prices:' as Status;
 SELECT name, CONCAT('₹', FORMAT(price, 2)) as Price FROM products LIMIT 5;

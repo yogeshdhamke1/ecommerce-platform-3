@@ -1,6 +1,8 @@
 <?php
-require_once 'vendor/autoload.php';
-use Dompdf\Dompdf;
+// Try to load DomPDF, fallback if not available
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 class Invoice {
     private $conn;
@@ -24,12 +26,19 @@ class Invoice {
 
         $html = $this->generateInvoiceHTML($order, $items);
         
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        
-        return $dompdf->output();
+        if (class_exists('Dompdf\Dompdf')) {
+            try {
+                $dompdf = new \Dompdf\Dompdf();
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                return $dompdf->output();
+            } catch (Exception $e) {
+                return $html;
+            }
+        } else {
+            return $html;
+        }
     }
 
     private function generateInvoiceHTML($order, $items) {

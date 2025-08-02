@@ -6,9 +6,12 @@ $database = new Database();
 $db = $database->getConnection();
 $product = new Product($db);
 
-$category = $_GET['category'] ?? null;
-$search = $_GET['search'] ?? null;
-$products = $product->getAllProducts($category, $search);
+// Build filters array for backward compatibility
+$filters = [
+    'category' => $_GET['category'] ?? '',
+    'search' => $_GET['search'] ?? ''
+];
+$products = $product->getAllProducts($filters);
 
 // Get categories for filter
 $cat_query = "SELECT * FROM categories ORDER BY name";
@@ -67,7 +70,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <form method="GET" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Search Products</label>
-                            <input type="text" name="search" value="<?php echo htmlspecialchars($search ?? ''); ?>" 
+                            <input type="text" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                    placeholder="Search...">
                         </div>
@@ -76,7 +79,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="">All Categories</option>
                                 <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo $cat['id']; ?>" <?php echo $category == $cat['id'] ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $cat['id']; ?>" <?php echo $filters['category'] == $cat['id'] ? 'selected' : ''; ?>>
                                         <?php echo $cat['name']; ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -85,6 +88,9 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
                             <i class="fas fa-filter mr-2"></i>Apply Filters
                         </button>
+                        <a href="pages/search.php" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition text-center block">
+                            <i class="fas fa-search-plus mr-2"></i>Advanced Search
+                        </a>
                     </form>
                 </div>
             </div>
@@ -127,6 +133,10 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 data-product-id="<?php echo $prod['id']; ?>">
                                             <i class="fas fa-cart-plus"></i>
                                         </button>
+                                        <button class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition add-to-wishlist" 
+                                                data-product-id="<?php echo $prod['id']; ?>">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -135,6 +145,57 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
+        
+        <!-- Recommended Products -->
+        <?php
+        require_once 'classes/Recommendations.php';
+        $recommendations = new Recommendations($db);
+        if (isset($_SESSION['user_id'])) {
+            $recommended_products = $recommendations->getRecommendedProducts($_SESSION['user_id'], 8);
+        } else {
+            $recommended_products = $recommendations->getPopularProducts(8);
+        }
+        if (!empty($recommended_products)):
+        ?>
+        <div class="mt-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">
+                <?php echo isset($_SESSION['user_id']) ? 'Recommended for You' : 'Popular Products'; ?>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <?php foreach ($recommended_products as $product): ?>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                        <div class="relative">
+                            <img src="assets/images/<?php echo $product['image']; ?>" 
+                                 alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                 class="w-full h-48 object-cover"
+                                 onerror="this.src='assets/images/demo-product.jpg'">
+                            <div class="absolute top-2 right-2">
+                                <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                    <?php echo $product['category_name']; ?>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-gray-800 mb-2"><?php echo htmlspecialchars($product['name']); ?></h3>
+                            <p class="text-blue-600 font-bold mb-3"><?php echo formatPrice($product['price']); ?></p>
+                            <div class="flex gap-2">
+                                <a href="pages/product.php?id=<?php echo $product['id']; ?>" 
+                                   class="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                                    View Details
+                                </a>
+                                <?php if (isset($_SESSION['user_id'])): ?>
+                                    <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition add-to-cart" 
+                                            data-product-id="<?php echo $product['id']; ?>">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <?php include 'includes/footer.php'; ?>

@@ -85,6 +85,14 @@ if ($_POST) {
                 </form>
                 
                 <div class="mt-6">
+                    <?php 
+                    $is_in_pages = true;
+                    include '../includes/social_buttons.php';
+                    renderSocialLoginButtons('dashboard.php');
+                    ?>
+                </div>
+                
+                <div class="mt-6">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300"></div>
