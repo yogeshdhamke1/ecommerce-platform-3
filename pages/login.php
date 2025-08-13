@@ -5,13 +5,76 @@ require_once '../classes/User.php';
 if ($_POST) {
     $database = new Database();
     $db = $database->getConnection();
-    $user = new User($db);
     
-    if ($user->login($_POST['email'], $_POST['password'])) {
-        header("Location: ../index.php");
-        exit();
-    } else {
-        $error = "Invalid email or password";
+    if (isset($_POST['send_otp'])) {
+        $contact = $_POST['contact'];
+        $type = $_POST['otp_type'];
+        
+        // Check if user exists
+        $field = $type == 'email' ? 'email' : 'phone';
+        $query = "SELECT id, full_name FROM users WHERE $field = ?";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$contact]);
+        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user_data) {
+            $otp = rand(100000, 999999);
+            $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+            
+            $otp_query = "INSERT INTO user_otps (user_id, otp, expires_at) VALUES (?, ?, ?) 
+                         ON DUPLICATE KEY UPDATE otp = ?, expires_at = ?";
+            $otp_stmt = $db->prepare($otp_query);
+            $otp_stmt->execute([$user_data['id'], $otp, $expires, $otp, $expires]);
+            
+            $_SESSION['otp_sent'] = true;
+            $_SESSION['otp_contact'] = $contact;
+            $_SESSION['otp_type'] = $type;
+            $_SESSION['debug_otp'] = $otp;
+            
+            $success = "OTP sent to your $type. Check your $type.";
+        } else {
+            $error = ucfirst($type) . " not found. Please register first.";
+        }
+    }
+    
+    if (isset($_POST['verify_otp'])) {
+        $contact = $_POST['contact'];
+        $otp = $_POST['otp'];
+        $type = $_POST['otp_type'];
+        
+        $field = $type == 'email' ? 'email' : 'phone';
+        $query = "SELECT u.id, u.full_name, u.email, u.username FROM users u 
+                  JOIN user_otps o ON u.id = o.user_id 
+                  WHERE u.$field = ? AND o.otp = ? AND o.expires_at > NOW()";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$contact, $otp]);
+        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user_data) {
+            $_SESSION['user_id'] = $user_data['id'];
+            $_SESSION['full_name'] = $user_data['full_name'];
+            $_SESSION['email'] = $user_data['email'];
+            $_SESSION['username'] = $user_data['username'];
+            
+            $delete_query = "DELETE FROM user_otps WHERE user_id = ?";
+            $delete_stmt = $db->prepare($delete_query);
+            $delete_stmt->execute([$user_data['id']]);
+            
+            header("Location: ../index.php");
+            exit();
+        } else {
+            $error = "Invalid or expired OTP.";
+        }
+    }
+    
+    if (isset($_POST['password'])) {
+        $user = new User($db);
+        if ($user->login($_POST['email'], $_POST['password'])) {
+            header("Location: ../index.php");
+            exit();
+        } else {
+            $error = "Invalid email or password";
+        }
     }
 }
 ?>
@@ -47,7 +110,70 @@ if ($_POST) {
                     </div>
                 <?php endif; ?>
                 
-                <form method="POST" class="space-y-6">
+                <?php if (isset($success)): ?>
+                    <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+                        <i class="fas fa-check-circle mr-2"></i><?php echo $success; ?>
+                        <?php if (isset($_SESSION['debug_otp'])): ?>
+                            <br><small>Debug OTP: <?php echo $_SESSION['debug_otp']; ?></small>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- OTP Login Form -->
+                <div id="otpLoginForm" style="display: none;">
+                    <?php if (!isset($_SESSION['otp_sent'])): ?>
+                        <form method="POST" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Login Method</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="otp_type" value="email" checked class="mr-2">
+                                        <i class="fas fa-envelope mr-1"></i>Email
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="otp_type" value="phone" class="mr-2">
+                                        <i class="fas fa-phone mr-1"></i>Mobile
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email/Mobile</label>
+                                <input type="text" name="contact" required 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="Enter email or mobile number">
+                            </div>
+                            <button type="submit" name="send_otp" 
+                                    class="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition">
+                                <i class="fas fa-paper-plane mr-2"></i>Send OTP
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <form method="POST" class="space-y-6">
+                            <input type="hidden" name="contact" value="<?php echo $_SESSION['otp_contact']; ?>">
+                            <input type="hidden" name="otp_type" value="<?php echo $_SESSION['otp_type']; ?>">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
+                                <input type="text" name="otp" required maxlength="6" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-2xl"
+                                       placeholder="000000">
+                            </div>
+                            <button type="submit" name="verify_otp" 
+                                    class="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition">
+                                <i class="fas fa-check mr-2"></i>Verify OTP
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                    
+                    <div class="mt-4 text-center">
+                        <button type="button" onclick="showPasswordLogin()" class="text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to Password Login
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Password Login Form -->
+                <div id="passwordLoginForm">
+                    <form method="POST" class="space-y-6">
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-envelope mr-1"></i>Email Address
@@ -82,6 +208,14 @@ if ($_POST) {
                     <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
                         <i class="fas fa-sign-in-alt mr-2"></i>Sign In
                     </button>
+                    
+                    <div class="mt-4 text-center">
+                        <button type="button" onclick="showOTPLogin()" class="text-green-600 hover:text-green-700 font-medium">
+                            <i class="fas fa-mobile-alt mr-1"></i>Login with OTP instead
+                        </button>
+                    </div>
+                    </form>
+                </div>
                 </form>
                 
                 <div class="mt-6">
@@ -133,6 +267,16 @@ if ($_POST) {
                 passwordIcon.classList.remove('fa-eye-slash');
                 passwordIcon.classList.add('fa-eye');
             }
+        }
+        
+        function showOTPLogin() {
+            document.getElementById('passwordLoginForm').style.display = 'none';
+            document.getElementById('otpLoginForm').style.display = 'block';
+        }
+        
+        function showPasswordLogin() {
+            document.getElementById('otpLoginForm').style.display = 'none';
+            document.getElementById('passwordLoginForm').style.display = 'block';
         }
     </script>
 </body>

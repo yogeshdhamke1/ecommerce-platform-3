@@ -73,19 +73,7 @@ if (!isset($GLOBALS['db']) && isset($_SESSION['user_id'])) {
             
             <!-- Right Side Navigation -->
             <div class="flex items-center space-x-4">
-                <!-- Currency Selector -->
-                <div class="relative group">
-                    <button class="text-gray-700 hover:text-blue-600 transition font-medium flex items-center">
-                        <i class="fas fa-globe mr-1"></i><?php echo $_SESSION['currency']; ?> <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                    </button>
-                    <div class="absolute top-full right-0 mt-2 w-32 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                        <a href="#" class="currency-select block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition" data-currency="INR">INR (₹)</a>
-                        <a href="#" class="currency-select block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition" data-currency="USD">USD ($)</a>
-                        <a href="#" class="currency-select block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition" data-currency="EUR">EUR (€)</a>
-                        <a href="#" class="currency-select block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition" data-currency="GBP">GBP (£)</a>
-                        <a href="#" class="currency-select block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition" data-currency="JPY">JPY (¥)</a>
-                    </div>
-                </div>
+
                 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="<?php echo $base_path; ?>cart.php" class="text-gray-700 hover:text-blue-600 transition relative">

@@ -51,6 +51,15 @@ $total_reviews = $rating_data['total_reviews'];
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="../assets/css/zoom.css" rel="stylesheet">
+    <style>
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <?php include '../includes/header.php'; ?>
@@ -138,6 +147,64 @@ $total_reviews = $rating_data['total_reviews'];
                 </div>
             </div>
         </div>
+
+        <!-- Recommended Products Slider -->
+        <?php
+        require_once '../classes/Recommendations.php';
+        $recommendations = new Recommendations($db);
+        // Debug: Get products directly
+        $rec_query = "SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id != ? LIMIT 8";
+        $rec_stmt = $db->prepare($rec_query);
+        $rec_stmt->execute([$_GET['id']]);
+        $recommended_products = $rec_stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($recommended_products)):
+        ?>
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-magic text-purple-600 mr-2"></i>Recommended for You
+            </h2>
+            <div class="relative">
+                <div id="recommendedSlider" class="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
+                    <?php foreach ($recommended_products as $product): ?>
+                        <div class="flex-none w-64 bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition">
+                            <div class="relative">
+                                <img src="../assets/images/<?php echo $product['image']; ?>" 
+                                     alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                     class="w-full h-40 object-cover"
+                                     onerror="this.src='../assets/images/demo-product.jpg'">
+                                <div class="absolute top-2 right-2">
+                                    <span class="bg-purple-500 text-white px-2 py-1 rounded-full text-xs">
+                                        Recommended
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-1 truncate"><?php echo htmlspecialchars($product['name']); ?></h3>
+                                <p class="text-sm text-gray-600 mb-2"><?php echo $product['category_name']; ?></p>
+                                <p class="text-blue-600 font-bold mb-3"><?php echo formatPrice($product['price']); ?></p>
+                                <div class="flex gap-2">
+                                    <a href="product.php?id=<?php echo $product['id']; ?>" 
+                                       class="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded text-sm hover:bg-blue-700 transition">
+                                        View
+                                    </a>
+                                    <button class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition add-to-cart" 
+                                            data-product-id="<?php echo $product['id']; ?>">
+                                        <i class="fas fa-cart-plus text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button id="scrollLeft" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <button id="scrollRight" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- Reviews Section -->
         <div class="bg-white rounded-lg shadow-md p-8">
@@ -371,6 +438,21 @@ $total_reviews = $rating_data['total_reviews'];
         // Initialize zoom when page loads
         document.addEventListener('DOMContentLoaded', () => {
             new ImageZoom();
+            
+            // Recommended products slider
+            const slider = document.getElementById('recommendedSlider');
+            const scrollLeft = document.getElementById('scrollLeft');
+            const scrollRight = document.getElementById('scrollRight');
+            
+            if (slider && scrollLeft && scrollRight) {
+                scrollLeft.addEventListener('click', () => {
+                    slider.scrollBy({ left: -280, behavior: 'smooth' });
+                });
+                
+                scrollRight.addEventListener('click', () => {
+                    slider.scrollBy({ left: 280, behavior: 'smooth' });
+                });
+            }
         });
         
         // Star rating interaction

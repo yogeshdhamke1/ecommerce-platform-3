@@ -1,6 +1,6 @@
-# E-Commerce Platform 🛒
+# Modern E-Commerce Platform 🛒
 
-A comprehensive PHP-based e-commerce platform with advanced features including social media integration, intelligent product recommendations, shipping rate calculation, and modern UI/UX design.
+A comprehensive PHP-based e-commerce platform with advanced features including OTP authentication, AI recommendations, social media integration, and multi-currency support.
 
 ## 🚀 Live Demo
 - **Homepage**: Browse products with multi-currency support

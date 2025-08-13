@@ -26,6 +26,24 @@ $product = new Product($db);
 // Handle product operations
 if ($_POST) {
     if (isset($_POST['action'])) {
+        // Handle image upload
+        if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] == 0) {
+            $upload_dir = '../assets/images/';
+            $file_name = time() . '_' . $_FILES['image_file']['name'];
+            $upload_path = $upload_dir . $file_name;
+            
+            if (move_uploaded_file($_FILES['image_file']['tmp_name'], $upload_path)) {
+                $_POST['image'] = $file_name;
+            }
+        } elseif (isset($_POST['image_url']) && !empty($_POST['image_url'])) {
+            $_POST['image'] = $_POST['image_url'];
+        } elseif ($_POST['action'] == 'update' && empty($_POST['image'])) {
+            // Keep existing image if no new image provided
+            unset($_POST['image']);
+        } else {
+            $_POST['image'] = 'demo-product.jpg';
+        }
+        
         switch ($_POST['action']) {
             case 'add':
                 $product->addProduct($_POST);
@@ -71,6 +89,40 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
             </button>
         </div>
 
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input type="text" id="searchInput" placeholder="Search products..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select id="categoryFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['name']; ?>"><?php echo $cat['name']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
+                    <select id="stockFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Stock</option>
+                        <option value="in-stock">In Stock</option>
+                        <option value="low-stock">Low Stock (≤5)</option>
+                        <option value="out-of-stock">Out of Stock</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="clearFilters()" class="w-full bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <?php if (isset($success)): ?>
             <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
                 <i class="fas fa-check-circle mr-2"></i><?php echo $success; ?>
@@ -88,9 +140,9 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200" id="productsTable">
                     <?php foreach ($products as $prod): ?>
-                        <tr>
+                        <tr class="product-row" data-name="<?php echo strtolower($prod['name']); ?>" data-category="<?php echo $prod['category_name']; ?>" data-stock="<?php echo $prod['stock']; ?>">
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
                                     <img src="../assets/images/<?php echo $prod['image']; ?>" 
@@ -128,7 +180,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg p-6 w-full max-w-md">
                 <h2 id="modalTitle" class="text-xl font-bold mb-4">Add Product</h2>
-                <form id="productForm" method="POST">
+                <form id="productForm" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="productId">
                     
@@ -168,8 +220,27 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                     
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
-                        <input type="text" name="image" id="productImage" placeholder="image-name.jpg" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="image_type" value="upload" checked class="mr-2" onchange="toggleImageInput()">
+                                    Upload Image
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="image_type" value="url" class="mr-2" onchange="toggleImageInput()">
+                                    Image URL
+                                </label>
+                            </div>
+                            <div id="uploadOption">
+                                <input type="file" name="image_file" id="imageFile" accept="image/*" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div id="urlOption" style="display: none;">
+                                <input type="text" name="image_url" id="imageUrl" placeholder="https://example.com/image.jpg" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <input type="hidden" name="image" id="productImage">
+                        </div>
                     </div>
                     
                     <div class="flex justify-end space-x-3">
@@ -204,7 +275,17 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('productPrice').value = product.price;
             document.getElementById('productCategory').value = product.category_id;
             document.getElementById('productStock').value = product.stock;
-            document.getElementById('productImage').value = product.image;
+            
+            // Handle image display for edit
+            if (product.image && product.image !== 'demo-product.jpg') {
+                document.querySelector('input[name="image_type"][value="url"]').checked = true;
+                document.getElementById('imageUrl').value = product.image;
+                toggleImageInput();
+            } else {
+                document.querySelector('input[name="image_type"][value="upload"]').checked = true;
+                toggleImageInput();
+            }
+            
             document.getElementById('productModal').classList.remove('hidden');
         }
 
@@ -224,6 +305,89 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
         function closeModal() {
             document.getElementById('productModal').classList.add('hidden');
         }
+
+        // Filter functionality
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            const rows = document.querySelectorAll('.product-row');
+
+            rows.forEach(row => {
+                const name = row.dataset.name;
+                const category = row.dataset.category;
+                const stock = parseInt(row.dataset.stock);
+                
+                let showRow = true;
+
+                // Search filter
+                if (searchTerm && !name.includes(searchTerm)) {
+                    showRow = false;
+                }
+
+                // Category filter
+                if (categoryFilter && category !== categoryFilter) {
+                    showRow = false;
+                }
+
+                // Stock filter
+                if (stockFilter) {
+                    if (stockFilter === 'in-stock' && stock <= 0) showRow = false;
+                    if (stockFilter === 'low-stock' && stock > 5) showRow = false;
+                    if (stockFilter === 'out-of-stock' && stock > 0) showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('stockFilter').value = '';
+            filterProducts();
+        }
+
+        // Add event listeners
+        document.getElementById('searchInput').addEventListener('input', filterProducts);
+        document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+        document.getElementById('stockFilter').addEventListener('change', filterProducts);
+
+        // Image input toggle
+        function toggleImageInput() {
+            const uploadRadio = document.querySelector('input[name="image_type"][value="upload"]');
+            const uploadOption = document.getElementById('uploadOption');
+            const urlOption = document.getElementById('urlOption');
+            
+            if (uploadRadio.checked) {
+                uploadOption.style.display = 'block';
+                urlOption.style.display = 'none';
+            } else {
+                uploadOption.style.display = 'none';
+                urlOption.style.display = 'block';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            const uploadRadio = document.querySelector('input[name="image_type"][value="upload"]');
+            const imageFile = document.getElementById('imageFile');
+            const imageUrl = document.getElementById('imageUrl');
+            const productImage = document.getElementById('productImage');
+            const formAction = document.getElementById('formAction').value;
+            
+            if (uploadRadio.checked) {
+                if (imageFile.files.length > 0) {
+                    productImage.value = imageFile.files[0].name;
+                } else if (formAction === 'update') {
+                    // Keep existing image for update if no new file selected
+                    const existingImage = document.querySelector('tr[data-product-id="' + document.getElementById('productId').value + '"] img').src;
+                    productImage.value = existingImage.split('/').pop();
+                }
+            } else {
+                productImage.value = imageUrl.value || 'demo-product.jpg';
+            }
+        });
     </script>
 </body>
 </html>

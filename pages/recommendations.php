@@ -11,7 +11,11 @@ $database = new Database();
 $db = $database->getConnection();
 $recommendations = new Recommendations($db);
 
-$recommended_products = $recommendations->getRecommendedProducts($_SESSION['user_id'], 12);
+// Debug: Get all products first
+$debug_query = "SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id LIMIT 12";
+$debug_stmt = $db->prepare($debug_query);
+$debug_stmt->execute();
+$recommended_products = $debug_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -14,6 +14,18 @@ $order = new Order($db);
 $user_orders = $order->getUserOrders($_SESSION['user_id']);
 $total_orders = count($user_orders);
 $total_spent = array_sum(array_column($user_orders, 'total'));
+
+// Get wishlist count
+$wishlist_query = "SELECT COUNT(*) as count FROM wishlist WHERE user_id = ?";
+$wishlist_stmt = $db->prepare($wishlist_query);
+$wishlist_stmt->execute([$_SESSION['user_id']]);
+$wishlist_count = $wishlist_stmt->fetch()['count'];
+
+// Get reviews count
+$reviews_query = "SELECT COUNT(*) as count FROM reviews WHERE user_id = ?";
+$reviews_stmt = $db->prepare($reviews_query);
+$reviews_stmt->execute([$_SESSION['user_id']]);
+$reviews_count = $reviews_stmt->fetch()['count'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,7 +77,7 @@ $total_spent = array_sum(array_column($user_orders, 'total'));
                     </div>
                     <div class="ml-4">
                         <p class="text-sm text-gray-600">Wishlist Items</p>
-                        <p class="text-2xl font-bold text-gray-900">0</p>
+                        <p class="text-2xl font-bold text-gray-900"><?php echo $wishlist_count; ?></p>
                     </div>
                 </div>
             </div>
@@ -77,7 +89,7 @@ $total_spent = array_sum(array_column($user_orders, 'total'));
                     </div>
                     <div class="ml-4">
                         <p class="text-sm text-gray-600">Reviews</p>
-                        <p class="text-2xl font-bold text-gray-900">0</p>
+                        <p class="text-2xl font-bold text-gray-900"><?php echo $reviews_count; ?></p>
                     </div>
                 </div>
             </div>

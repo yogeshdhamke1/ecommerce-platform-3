@@ -101,6 +101,20 @@
             </div>
         </div>
         
+        <!-- Currency Selector -->
+        <div class="border-t border-gray-800 pt-6 pb-4 text-center">
+            <div class="mb-4">
+                <span class="text-gray-300 mr-4">Currency:</span>
+                <div class="inline-flex space-x-2">
+                    <button class="currency-select px-3 py-1 bg-gray-800 text-white rounded hover:bg-blue-600 transition" data-currency="INR">INR (₹)</button>
+                    <button class="currency-select px-3 py-1 bg-gray-800 text-white rounded hover:bg-blue-600 transition" data-currency="USD">USD ($)</button>
+                    <button class="currency-select px-3 py-1 bg-gray-800 text-white rounded hover:bg-blue-600 transition" data-currency="EUR">EUR (€)</button>
+                    <button class="currency-select px-3 py-1 bg-gray-800 text-white rounded hover:bg-blue-600 transition" data-currency="GBP">GBP (£)</button>
+                    <button class="currency-select px-3 py-1 bg-gray-800 text-white rounded hover:bg-blue-600 transition" data-currency="JPY">JPY (¥)</button>
+                </div>
+            </div>
+        </div>
+        
         <!-- Copyright -->
         <div class="border-t border-gray-800 pt-6 text-center">
             <p class="text-gray-400">

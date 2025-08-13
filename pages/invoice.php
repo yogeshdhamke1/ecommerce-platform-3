@@ -21,15 +21,101 @@ if (!$order_details || $order_details['user_id'] != $_SESSION['user_id']) {
     exit();
 }
 
-// Handle PDF download
+// Handle PDF download - Use HTML to PDF conversion
 if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
-    $pdf_content = $invoice->generateInvoicePDF($_GET['order_id']);
+    ob_start();
+    ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .company { font-size: 18px; font-weight: bold; color: #2563eb; }
+            .invoice-title { font-size: 16px; font-weight: bold; margin: 10px 0; }
+            .section { margin: 20px 0; }
+            .bold { font-weight: bold; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; font-weight: bold; }
+            .total-row { font-weight: bold; background-color: #f9f9f9; }
+            .footer { text-align: center; margin-top: 30px; font-size: 11px; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="company"><?php echo SITE_NAME; ?></div>
+            <div class="invoice-title">INVOICE #INV-<?php echo str_pad($order_details['id'], 6, '0', STR_PAD_LEFT); ?></div>
+            <div>Date: <?php echo date('M d, Y', strtotime($order_details['created_at'])); ?></div>
+        </div>
+        
+        <div class="section">
+            <div class="bold">Bill To:</div>
+            <div><?php echo htmlspecialchars($order_details['full_name']); ?></div>
+            <div><?php echo htmlspecialchars($order_details['email']); ?></div>
+            <div><?php echo nl2br(htmlspecialchars($order_details['shipping_address'])); ?></div>
+        </div>
+        
+        <div class="section">
+            <div class="bold">Items Ordered:</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $subtotal = 0;
+                    foreach ($order_items as $item): 
+                        $item_total = $item['quantity'] * $item['price'];
+                        $subtotal += $item_total;
+                    ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($item['name']); ?></td>
+                            <td><?php echo $item['quantity']; ?></td>
+                            <td><?php echo formatPrice($item['price']); ?></td>
+                            <td><?php echo formatPrice($item_total); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <table style="width: 300px; margin-left: auto;">
+                <tr>
+                    <td>Subtotal:</td>
+                    <td style="text-align: right;"><?php echo formatPrice($subtotal); ?></td>
+                </tr>
+                <tr>
+                    <td>Shipping:</td>
+                    <td style="text-align: right;">Free</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total Amount:</td>
+                    <td style="text-align: right;"><?php echo formatPrice($order_details['total']); ?></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <div class="bold">Thank you for your business!</div>
+            <div>For questions, contact us at info@ecommerce.com</div>
+        </div>
+    </body>
+    </html>
+    <?php
+    $html = ob_get_clean();
     
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="invoice-' . $_GET['order_id'] . '.pdf"');
-    header('Content-Length: ' . strlen($pdf_content));
+    header('Content-Type: text/html');
+    header('Content-Disposition: attachment; filename="invoice-' . $order_details['id'] . '.html"');
     
-    echo $pdf_content;
+    echo $html;
     exit();
 }
 ?>

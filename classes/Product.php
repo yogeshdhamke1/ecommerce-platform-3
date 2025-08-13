@@ -92,9 +92,15 @@ class Product {
     }
 
     public function updateProduct($id, $data) {
-        $query = "UPDATE " . $this->table_name . " SET name = ?, description = ?, price = ?, category_id = ?, stock = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($query);
-        return $stmt->execute([$data['name'], $data['description'], $data['price'], $data['category_id'], $data['stock'], $id]);
+        if (isset($data['image'])) {
+            $query = "UPDATE " . $this->table_name . " SET name = ?, description = ?, price = ?, category_id = ?, image = ?, stock = ? WHERE id = ?";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([$data['name'], $data['description'], $data['price'], $data['category_id'], $data['image'], $data['stock'], $id]);
+        } else {
+            $query = "UPDATE " . $this->table_name . " SET name = ?, description = ?, price = ?, category_id = ?, stock = ? WHERE id = ?";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([$data['name'], $data['description'], $data['price'], $data['category_id'], $data['stock'], $id]);
+        }
     }
 
     public function deleteProduct($id) {
