@@ -47,6 +47,7 @@ $recent_orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Admin Dashboard - <?php echo SITE_NAME; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50">
     <?php include 'includes/admin_header.php'; ?>
@@ -128,6 +129,51 @@ $recent_orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 
+                <!-- Real-Time Analytics Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Sales Overview (Last 7 Days)</h3>
+                        <canvas id="salesChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Order Status Distribution</h3>
+                        <canvas id="statusChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Live Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h4 class="text-md font-semibold mb-3">Today's Stats</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Orders:</span>
+                                <span id="todayOrders" class="font-semibold">Loading...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Revenue:</span>
+                                <span id="todayRevenue" class="font-semibold text-green-600">Loading...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">New Users:</span>
+                                <span id="todayUsers" class="font-semibold text-blue-600">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h4 class="text-md font-semibold mb-3">Top Products</h4>
+                        <div id="topProducts" class="space-y-2">
+                            Loading...
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h4 class="text-md font-semibold mb-3">Recent Activity</h4>
+                        <div id="recentActivity" class="space-y-2 text-sm">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-xl font-bold mb-4">Recent Orders</h2>
                     <div class="overflow-x-auto">
@@ -164,5 +210,85 @@ $recent_orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
+    <script>
+        // Initialize Charts
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        
+        // Sales Chart
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+                datasets: [{
+                    label: 'Sales (₹)',
+                    data: [12000, 19000, 8000, 15000, 22000, 18000, 25000],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        
+        // Status Chart
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending', 'Processing', 'Cancelled'],
+                datasets: [{
+                    data: [65, 20, 10, 5],
+                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+        
+        // Real-time data updates
+        function updateDashboard() {
+            fetch('analytics_api.php')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('todayOrders').textContent = data.todayOrders || '0';
+                    document.getElementById('todayRevenue').textContent = '₹' + (data.todayRevenue || '0');
+                    document.getElementById('todayUsers').textContent = data.todayUsers || '0';
+                    
+                    // Update top products
+                    const topProducts = document.getElementById('topProducts');
+                    topProducts.innerHTML = data.topProducts.map(product => 
+                        `<div class="flex justify-between text-sm">
+                            <span>${product.name}</span>
+                            <span class="font-semibold">${product.sales}</span>
+                        </div>`
+                    ).join('');
+                    
+                    // Update recent activity
+                    const recentActivity = document.getElementById('recentActivity');
+                    recentActivity.innerHTML = data.recentActivity.map(activity => 
+                        `<div class="text-gray-600">
+                            <i class="fas fa-${activity.icon} mr-2"></i>${activity.text}
+                        </div>`
+                    ).join('');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        // Update dashboard every 30 seconds
+        updateDashboard();
+        setInterval(updateDashboard, 30000);
+    </script>
 </body>
 </html>

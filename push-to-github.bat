@@ -11,7 +11,7 @@ if not exist ".git" (
 
 REM Add remote origin
 git remote remove origin 2>nul
-git remote add origin https://github.com/yogeshdhamke1/ecommerce-platform-3.git
+git remote add origin https://github.com/yogeshdhamke1/ecommerce-platform.git
 
 REM Add all files
 echo Adding files to Git...
@@ -26,6 +26,6 @@ echo Pushing to GitHub...
 git push -u origin main --force
 
 echo.
-echo Successfully pushed to: https://github.com/yogeshdhamke1/ecommerce-platform-3.git
+echo Successfully pushed to: https://github.com/yogeshdhamke1/ecommerce-platform.git
 echo.
 pause
